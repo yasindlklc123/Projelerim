@@ -6,401 +6,341 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Data.SqlClient;
+using System.Net.Mail;
 using System.IO;
 
-namespace projee
+namespace okul_kayıtt
 {
     public partial class Form1 : Form
     {
-        string cmle;
         public Form1()
         {
             InitializeComponent();
+            
         }
-
+        int say = 0;
+        Random xr = new Random();
         private void Form1_Load(object sender, EventArgs e)
         {
-            // TODO: This line of code loads data into the 'randevuDataSet.suclular' table. You can move, or remove it, as needed.
-            this.suclularTableAdapter.Fill(this.randevuDataSet.suclular);
-            // TODO: This line of code loads data into the 'randevuDataSet.suclar' table. You can move, or remove it, as needed.
-            this.suclarTableAdapter.Fill(this.randevuDataSet.suclar);
-            // TODO: This line of code loads data into the 'randevuDataSet.ceza' table. You can move, or remove it, as needed.
-            this.cezaTableAdapter.Fill(this.randevuDataSet.ceza);
-            // TODO: This line of code loads data into the 'randevuDataSet.saglik_sorun' table. You can move, or remove it, as needed.
-            this.saglik_sorunTableAdapter.Fill(this.randevuDataSet.saglik_sorun);
-            // TODO: This line of code loads data into the 'randevuDataSet.saglik_durum_aciklama' table. You can move, or remove it, as needed.
-            this.saglik_durum_aciklamaTableAdapter.Fill(this.randevuDataSet.saglik_durum_aciklama);
-            // TODO: This line of code loads data into the 'randevuDataSet.durum' table. You can move, or remove it, as needed.
-            this.durumTableAdapter.Fill(this.randevuDataSet.durum);
+            
+            textBox5.Hide();
+            label12.Hide();
+            button1.Hide();
+            checkBox1.Hide();
+            label13.Hide();
+            label14.Hide();
+            textBox4.Hide();
+            button4.Hide();
+            textBox3.Hide();
+            label15.Hide();
+           
+            linkLabel1.Hide();
+            label7.Text = DateTime.Now.Hour.ToString();
+            label8.Text = DateTime.Now.Minute.ToString();
+            label9.Text = DateTime.Now.Second.ToString();
+            label5.Text = DateTime.Now.ToLongDateString();
+            timer1.Enabled = true;
+           
+            
+
+
+
+
+
+
+            
+            // TODO: This line of code loads data into the 'kayıtDataSet.ogrenci' table. You can move, or remove it, as needed.
+            this.ogrenciTableAdapter.Fill(this.kayıtDataSet.ogrenci);
+         
 
         }
-       
 
-        private void button1_Click(object sender, EventArgs e)
+
+        private void timer1_Tick(object sender, EventArgs e)
         {
-            randevuDataSet.saglik_durum_aciklamaRow r = randevuDataSet.saglik_durum_aciklama.Newsaglik_durum_aciklamaRow();
-            if (textBox1.Text != "")
+
+            if (label1.Left < 400)
             {
-                r.aciklama = textBox1.Text.ToUpper();
-                randevuDataSet.saglik_durum_aciklama.Addsaglik_durum_aciklamaRow(r);
-                saglik_durum_aciklamaTableAdapter.Update(r);
-                textBox1.Clear();
-                
+                label1.Left = label1.Left + 5;
             }
             else
             {
-                MessageBox.Show("Lütfen Acıklama Giriniz");
+                label1.Left = -5;
             }
-
+            label7.Text = DateTime.Now.Hour.ToString();
+            label8.Text = DateTime.Now.Minute.ToString();
+            label9.Text = DateTime.Now.Second.ToString();
+            //this.WindowState = FormWindowState.Maximized;
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            int sayı = dataGridView2.SelectedRows.Count;
-            for (int i = 0; i <sayı; i++)
+            try
             {
-                int id = (int)dataGridView2.SelectedRows[0].Cells[0].Value;
-                randevuDataSet.saglik_durum_aciklamaRow r = randevuDataSet.saglik_durum_aciklama.FindBysaglik_durum_aciklama_id(id);
-                r.Delete();
-                saglik_durum_aciklamaTableAdapter.Update(r); 
+                textBox1.Focus();
+
+                SqlConnection baglanti = new SqlConnection(@"Data Source=.\SQLEXPRESS;AttachDbFilename=|DataDirectory|\kayıt.mdf;Integrated Security=True;User Instance=True");
+                baglanti.Open();
+                SqlCommand komut = new SqlCommand("select * from kullanci where kullanici_adi=@ad  AND kullanici_sifre=@sifre", baglanti);
+                komut.Parameters.AddWithValue("@ad", textBox1.Text.ToLower());
+                komut.Parameters.AddWithValue("@sifre", textBox2.Text.ToLower());
+                SqlDataReader oku = komut.ExecuteReader();
+                if (oku.Read())
+                {
+                    Form3 giris = new Form3();
+
+                    giris.Show();
+                    giris.WindowState = FormWindowState.Maximized;
+
+                    giris.label1.Text = textBox1.Text;
+                    giris.label1.Hide();
+
+
+                    //string sorgu = "select ogrenci_id,ogr_ad,ogr_soyad,medeni_hal,anne_ad,baba_ad,tc,dogum_yeri,dogum_tarihi,yas,kan_grubu,il_ad,fakulte_ad,bolum_ad,dil_ad,sekil_ad,kullanici_adi,nakilse_geldigi_üniversite,e_posta from ogrenci e JOIN iller i on e.il_id=i.il_id JOIN fakulte f on f.fakulte_id = e.fakulte_id JOIN bolumler b on e.bolum_id = b.bolum_id JOIN diller d on e.dil_id = d.dil_id JOIN sekil s on e.sekil_id = s.sekil_id JOIN kullanci k on e.kullanici_id=k.kullanici_id";
+                    //SqlConnection bagla = new SqlConnection(@"Data Source=.\SQLEXPRESS;AttachDbFilename=|DataDirectory|\kayıt.mdf;Integrated Security=True;User Instance=True");
+                    // bagla.Open();
+                    //SqlCommand komutt = new SqlCommand(sorgu, bagla);
+                    //SqlDataAdapter ap = new SqlDataAdapter(komutt);
+                    // DataTable dt = new DataTable();
+                    // ap.Fill(dt);
+                    // giris.dataGridView1.DataSource = dt;
+
+                    //bagla.Close();
+
+                    string sorgu = "select ogrenci_id,ogr_ad,ogr_soyad,medeni_hal,anne_ad,baba_ad,tc,dogum_yeri,dogum_tarihi,yas,kan_grubu,il_ad,fakulte_ad,bolum_ad,dil_ad,sekil_ad,kullanici_adi,nakilse_geldigi_üniversite,e_posta from ogrenci e JOIN iller i on e.il_id=i.il_id JOIN fakulte f on f.fakulte_id = e.fakulte_id JOIN bolumler b on e.bolum_id = b.bolum_id JOIN diller d on e.dil_id = d.dil_id JOIN sekil s on e.sekil_id = s.sekil_id JOIN kullanci k on e.kullanici_id=k.kullanici_id";
+                    SqlConnection bagla = new SqlConnection(@"Data Source=.\SQLEXPRESS;AttachDbFilename=|DataDirectory|\kayıt.mdf;Integrated Security=True;User Instance=True");
+                    bagla.Open();
+                    SqlCommand komutt = new SqlCommand(sorgu, bagla);
+                    DataSet ds = new DataSet();
+                    DataTable dt = new DataTable();
+                    ds.Tables.Add(dt);
+                    SqlDataAdapter adap = new SqlDataAdapter(komutt);
+                    adap.Fill(dt);
+                    giris.dataGridView1.DataSource = dt;
+
+                    this.Hide();
+                }
+                else
+                {
+                    say++;
+                    MessageBox.Show("Kullanıcı Adı Veya Parola Yanlış Tekrar Deneyiniz");
+                    textBox1.Clear();
+                    textBox2.Clear();
+                }
+                baglanti.Close();
+                if (say == 3)
+                {
+
+                    linkLabel1.Visible = true;
+                    checkBox1.Checked = true;
+                }
             }
-          
+            catch (Exception ee)
+            {
+                MessageBox.Show(ee.Message.ToString());
+            }
+        }
+
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            textBox2.Hide();
+            linkLabel2.Hide();
+            button3.Hide();
+            button2.Hide();
+           label14.Text = xr.Next(0, 9999).ToString();
+            label2.Hide();
+            textBox1.Hide();
+            button4.Visible = true;
+            label13.Visible = true;
+            label14.Visible = true;
+            textBox4.Visible = true;
+            textBox5.Visible = true;
+            label12.Visible = true;
+            button1.Visible = true;
+            checkBox1.Visible = true;
+            label15.Visible = true;
+            textBox3.Visible = true;
+
+
+            label3.Hide();
+            linkLabel1.Hide();
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            
-            randevuDataSet.suclarRow r = randevuDataSet.suclar.NewsuclarRow();
-            r.suc_ad = textBox2.Text.ToUpper() ;
-            r.ceza_id = (int)comboBox1.SelectedValue;
-            r.ceza_yil = (int)comboBox2.SelectedValue;
-            randevuDataSet.suclar.AddsuclarRow(r);
-            suclarTableAdapter.Update(r);
-            textBox2.Clear();
-        
-            
+
+            checkBox1.Hide();
+            label13.Hide();
+            label14.Hide();
+            label12.Hide();
+            button1.Hide();
+            button4.Hide();
+            textBox5.Hide();
+            textBox4.Hide();
+            label15.Hide();
+            textBox3.Hide();
+            textBox2.Visible = true;
+            textBox1.Visible = true;
+            label2.Visible = true;
+            label3.Visible = true;
+            linkLabel1.Visible = true;
+            linkLabel2.Visible = true;
+            button2.Visible = true;
+            button3.Visible = true;
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            if (textBox3.Text != "")
+            this.Close();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            try
             {
-                randevuDataSet.cezaRow r = randevuDataSet.ceza.NewcezaRow();
-                r.ceza_yil = Convert.ToInt32(textBox3.Text);
-                randevuDataSet.ceza.AddcezaRow(r);
-                cezaTableAdapter.Update(r);
-                textBox3.Clear();
+                SqlConnection baglantı = new SqlConnection(@"Data Source=.\SQLEXPRESS;AttachDbFilename=|DataDirectory|\kayıt.mdf;Integrated Security=True;User Instance=True");
+                baglantı.Open();
+                SqlCommand cmd = new SqlCommand("select kullanici_adi,kullanici_sifre from kullanci where kullanici_adi=@ad", baglantı);
+                cmd.Parameters.AddWithValue("@ad", textBox3.Text.ToLower());
+                SqlDataReader dr = cmd.ExecuteReader();
+
+                while (dr.Read())
+                {
+                    // if ( textBox3.Text.ToUpper()) 
+                    if (checkBox1.Checked == true && textBox4.Text == label14.Text)
+                    {
+                        if (textBox5.Text != "")
+                        {
+                            MailMessage mesaj = new MailMessage();
+                            SmtpClient sunucu = new SmtpClient();
+                            sunucu.Credentials = new System.Net.NetworkCredential("ysndlklc66@hotmail.com", "Baskan0293");
+                            sunucu.Port = 587;
+                            sunucu.Host = "smtp.live.com";
+                            sunucu.EnableSsl = true;
+                            mesaj.To.Add(textBox5.Text);
+                            mesaj.From = new MailAddress("ysndlklc66@hotmail.com");
+                            mesaj.Subject = "KULLANICI ADI VE ŞİFRE BİLGİSİ";
+                            mesaj.Body = "KULLANICI ADINIZ :" + dr[0].ToString() + "" + "\n" + "" + "ŞİFRENİZ :" + "" + dr[1].ToString();
+                            sunucu.Send(mesaj);
+                            MessageBox.Show("Mesaj Başarıyla Gönderildi");
+                            textBox4.Clear();
+                            textBox5.Clear();
+                            textBox3.Clear();
+
+                        }
+                        else
+                        {
+                            MessageBox.Show("Lütfen Alıcı Kişiye Ait E-Posta Adresini Giriniz");
+                        }
+
+
+                    }
+                    else
+                    {
+                        label14.Text = xr.Next(0, 9999).ToString();
+                        MessageBox.Show("Lütfen E-Posta İle Gönder Seçeneğini Seçtikten Sonra Güvenlik Kodunu Giriniz");
+                    }
+
+                }
+                baglantı.Close();
             }
-            else
+            catch (Exception ee)
             {
-                MessageBox.Show("Lütfen Deger Giriniz");
+                MessageBox.Show(ee.Message.ToString());
             }
         }
 
-        private void button6_Click(object sender, EventArgs e)
+        private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            if (textBox9.Text != "")
+            try
             {
-                saglikdurumaciklamaBindingSource1.Filter = "aciklama like '" + textBox9.Text.ToUpper() + "%'";
+                Form2 kullanici = new Form2();
+                kullanici.kullanici = true;
+                kullanici.r = kayıtDataSet.kullanci.NewkullanciRow();
+
+
+                if (kullanici.ShowDialog() == DialogResult.OK)
+                {
+                    kayıtDataSet.kullanci.AddkullanciRow(kullanici.r);
+                    kullanciTableAdapter1.Update(kullanici.r);
+
+                }
             }
-            else
+            catch (Exception ee)
             {
-                MessageBox.Show("Lütfen Aranacak Kaydı Giriniz");
+                MessageBox.Show(ee.Message.ToString());
             }
-          
-        }
-
-        private void textBox9_TextChanged(object sender, EventArgs e)
-        {
-            saglikdurumaciklamaBindingSource1.Filter = "aciklama like '" + textBox9.Text.ToUpper() + "%'";
-        }
-
-        private void button7_Click(object sender, EventArgs e)
-        {
-            int sayı = dataGridView4.SelectedRows.Count;
-            for (int i = 0; i < sayı; i++)
-            {
-                int id = (int)dataGridView4.SelectedRows[0].Cells[0].Value;
-                randevuDataSet.cezaRow r = randevuDataSet.ceza.FindByceza_id(id);
-                r.Delete();
-                cezaTableAdapter.Update(r);
-                
-            }
-           
-        }
-
-        private void button8_Click(object sender, EventArgs e)
-        {
-          
-            if (textBox10.Text != "" )
-            {
-              
-               
-                    int id = Convert.ToInt32(textBox10.Text);
-                    int yer = cezaBindingSource.Find("ceza_yil", id);
-                    cezaBindingSource.Position = yer;
-                    textBox10.Clear();
-              
-            }
-            else 
-            {
-                MessageBox.Show("Lütfen Aranacak Kaydı Giriniz");
-            }
-
-        }
-
-        private void button9_Click(object sender, EventArgs e)
-        {
-            int sayı = dataGridView5.SelectedRows.Count;
-            for (int i = 0; i < sayı; i++)
-            {
-                int id = (int)dataGridView5.SelectedRows[0].Cells[0].Value;
-                randevuDataSet.suclarRow r = randevuDataSet.suclar.FindBysuc_id(id);
-                r.Delete();
-                suclarTableAdapter.Update(r);
-            }
-         
-        }
-
-        private void button11_Click(object sender, EventArgs e)
-        {
-            int id = Convert.ToInt32(textBox5.Text);
-            randevuDataSet.suclarRow r = randevuDataSet.suclar.FindBysuc_id(id);
-            r.suc_ad = textBox4.Text.ToUpper();
-           
-            r.ceza_id =(int)comboBox5.SelectedValue;
-            r.ceza_yil =(int) comboBox4.SelectedValue;
-            suclarTableAdapter.Update(r);
-            textBox4.Clear();
-            textBox5.Clear();
-        }
-
-        private void button12_Click(object sender, EventArgs e)
-        {
-
-            int id = Convert.ToInt32(textBox12.Text);
-
-            randevuDataSet.saglik_durum_aciklamaRow r = randevuDataSet.saglik_durum_aciklama.FindBysaglik_durum_aciklama_id(id);
-     
-            r.aciklama = textBox11.Text.ToUpper();
-            saglik_durum_aciklamaTableAdapter.Update(r);
-            textBox12.Clear();
-            textBox11.Clear();
-            
-          
-        }
-
-        private void button13_Click(object sender, EventArgs e)
-        {
-
-
-            int id = Convert.ToInt32(textBox13.Text);
-
-            randevuDataSet.cezaRow r = randevuDataSet.ceza.FindByceza_id(id);
-            
-           
-            r.ceza_yil = Convert.ToInt32(textBox14.Text);
-            cezaTableAdapter.Update(r);
-            textBox13.Clear();
-            textBox14.Clear();
-          
-        }
-
-        private void dataGridView4_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            textBox14.Text = dataGridView4.SelectedRows[0].Cells[1].Value.ToString();
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
-
-            Form2 yeni = new Form2();
-            yeni.ekle = true;
-            
-            yeni.r = randevuDataSet.suclular.NewsuclularRow();
-            if (yeni.ShowDialog() == DialogResult.OK)
-            {
-              
-                randevuDataSet.suclular.AddsuclularRow(yeni.r);
-                suclularTableAdapter.Update(yeni.r);
-               suclularBindingSource.Position=suclularBindingSource.Find("suclu_tc", yeni.r.suclu_tc);
-            }
-            
             
         }
 
-        private void button14_Click(object sender, EventArgs e)
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
-            Form2 a = new Form2();
-            a.ekle = false;
-            int id = (int)dataGridView6.SelectedRows[0].Cells[0].Value;
-            a.r = randevuDataSet.suclular.FindBysuclu_id(id);
-            if (a.ShowDialog() == DialogResult.OK)
+            if (textBox1.Text !="" || textBox2.Text != "")
             {
-            
-                suclularTableAdapter.Update(a.r);
-            }
-        }
-
-        private void button15_Click(object sender, EventArgs e)
-        {
-            int sayı = dataGridView6.SelectedRows.Count;
-            for (int i = 0; i < sayı; i++)
-            {
-                int id = (int)dataGridView6.SelectedRows[0].Cells[0].Value;
-                randevuDataSet.suclularRow r = randevuDataSet.suclular.FindBysuclu_id(id);
-                r.Delete();
-                suclularTableAdapter.Update(r);
-            }
-            
-        }
-
-        private void button16_Click(object sender, EventArgs e)
-        {
-            if (textBox15.Text != "" && comboBox6.SelectedItem.ToString()=="TC")
-            {
-                suclularBindingSource.Filter = "suclu_tc like '" + textBox15.Text + "%'";
-                textBox15.Clear();
+                if (e.KeyCode == Keys.Enter)
+                {
+                    button2_Click(sender, e);
+                }
             }
             else
             {
-                MessageBox.Show("Lütfen Aranacak Kaydı Giriniz");
+
             }
         }
 
-        private void button10_Click(object sender, EventArgs e)
-        {
-            //suclarBindingSource.Filter = "suc_ad like'" + comboBox3.SelectedValue.ToString() + "%'";
-        }
+    
 
-        private void textBox15_TextChanged(object sender, EventArgs e)
-        {
-            if (comboBox6.SelectedItem.ToString() == "TC")
-            {
-                suclularBindingSource.Filter = "suclu_tc like '" + textBox15.Text + "%'";
-            }
-            else if(comboBox6.SelectedItem.ToString()=="SOYAD")
-            {
-                suclularBindingSource.Filter = "suclu_soyad like '" + textBox15.Text + "%'";
-            }
-            else if (comboBox6.SelectedItem.ToString() == "AD")
-            {
-                suclularBindingSource.Filter = "suclu_ad like '" + textBox15.Text + "%'";
-            }
-            else if (comboBox6.SelectedItem.ToString() == "CEZA YIL")
-            {
-                if (textBox15.Text != "")
-                {
-                    suclularBindingSource.Filter = "ceza_yil =" + Convert.ToInt32(textBox15.Text);
-                }  
-            }
-            else if(comboBox6.SelectedItem.ToString()=="KAN GRUBU")
-            {
-                suclularBindingSource.Filter = "kan_grubu like '" + textBox15.Text + "%'";
-            }
-            else if (comboBox6.SelectedItem.ToString()=="SUÇ TÜRÜ")
-            {
-                suclularBindingSource.Filter = "suc_ad like '" + textBox15.Text + "%'";
-            }
-            else if (comboBox6.SelectedItem.ToString()=="HASTALIK")
-            {
-                suclularBindingSource.Filter = "saglik_durum_aciklama like '" + textBox15.Text + "%'";
-            }
-        }
 
-        private void button17_Click(object sender, EventArgs e)
-        {
-           
-        }
-
-        private void button17_Click_1(object sender, EventArgs e)
-        {
-            
-            int sayı = dataGridView6.SelectedRows.Count;
-            Form3 mail = new Form3();
-            mail.textBox2.Text = "Suçlu Bilgileri";
-            for (int i = 0; i < sayı; i++)
-            {
-                int id = (int)dataGridView6.SelectedRows[i].Cells[0].Value;
-                randevuDataSet.suclularRow r = randevuDataSet.suclular.FindBysuclu_id(id);
-                cmle = "Suçlu Adı : " + r.suclu_ad + "\n" + "Suçlu SoyAdı :" + r.suclu_soyad + "\n" + "Tc Kimlik No :" + r.suclu_tc.ToString() + "\n" + "Suçlu Doğum Tarihi : " + r.suclu_d_tarihi.ToShortDateString() + "\n" +
-              "Suç Adı :" + r.suc_ad + "\n" + "Ceza Yılı : " + r.ceza_yil + "\n" + "Sağlık Sorunu :" + r.saglik_sorun_durum + "\n" + "Hastalık Adı : " + r.saglik_durum_aciklama + "\n" + "Ceza Durumu : " + r.durum + "\n" + "\n" +
-              cmle;
-                
-            }
-            mail.richTextBox1.Text = cmle;
-            mail.Show();
-           
-        }
-
-        private void dataGridView2_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-            textBox12.Text = dataGridView2.SelectedRows[0].Cells[0].Value.ToString();
-           
-        }
-
-        private void dataGridView4_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-            int a  = (int)dataGridView4.SelectedRows[0].Cells[0].Value;
-            textBox13.Text = a.ToString();
-        }
-
-        private void dataGridView5_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-            textBox5.Text = dataGridView5.SelectedRows[0].Cells[0].Value.ToString();
-        }
-
-        private void button18_Click(object sender, EventArgs e)
-        {
       
-            saveFileDialog1.OverwritePrompt = true;;
-               saveFileDialog1.CreatePrompt = true;  
-            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
-            {
-                saveFileDialog1.Filter = "Metin dosyaları (*.txt)|*.txt|Tüm dosyalar (*.*)|*.*";
-              
-                int id = (int)dataGridView6.SelectedRows[0].Cells[0].Value;
-                randevuDataSet.suclularRow r = randevuDataSet.suclular.FindBysuclu_id(id);
-                StreamWriter yaz = new StreamWriter(saveFileDialog1.FileName, true, Encoding.UTF8);
-                yaz.WriteLine(r.suclu_ad+" " + r.suclu_soyad);
-                yaz.Close();
-                MessageBox.Show("Kayıt Başarıyla Aktarıldı");
-            }
-         
-         
-        }
-
-        private void button19_Click(object sender, EventArgs e)
-        {
-        
-        }
-
-        private void textBox6_TextChanged(object sender, EventArgs e)
-        {
-
-            
-        }
-
-        private void button19_Click_1(object sender, EventArgs e)
-        {
-       
-        }
-
-        private void tabPage1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void comboBox6_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
+        //private void button1_Click(object sender, EventArgs e)
+        //{
 
 
-   
       
-  
+	
 
-     
+        //    string sorgu = "select ogrenci_id,ogr_ad,ogr_soyad,medeni_hal,anne_ad,baba_ad,tc,dogum_yeri,dogum_tarihi,yas,kan_grubu,il_ad,fakulte_ad,bolum_ad,dil_ad,sekil_ad,kullanici_adi,nakilse_geldigi_üniversite,e_posta from ogrenci e JOIN iller i on e.il_id=i.il_id JOIN fakulte f on f.fakulte_id = e.fakulte_id JOIN bolumler b on e.bolum_id = b.bolum_id JOIN diller d on e.dil_id = d.dil_id JOIN sekil s on e.sekil_id = s.sekil_id JOIN kullanci k on e.kullanici_id=k.kullanici_id";
+        //    SqlConnection bagla = new SqlConnection(@"Data Source=.\SQLEXPRESS;AttachDbFilename=|DataDirectory|\kayıt.mdf;Integrated Security=True;User Instance=True");
+        //    bagla.Open();
+        //    SqlCommand komut = new SqlCommand(sorgu, bagla);
+        //    SqlDataAdapter ap = new SqlDataAdapter(komut);
+        //    DataTable dt = new DataTable();
+        //    ap.Fill(dt);
+        //    dataGridView1.DataSource = dt;
+          
+        //    bagla.Close();
+        //}
+
+        //private void button2_Click(object sender, EventArgs e)
+        //{
+        //    kayıtDataSet.ogrenciRow r = kayıtDataSet.ogrenci.NewogrenciRow();
+        //    r.ogr_ad = "melisa";
+        //    r.ogr_soyad = "uslu";
+        //    r.medeni_hal = "bekar";
+        //    r.anne_ad = "deniz";
+        //    r.baba_ad = "burak";
+        //    r.tc = "11887272220";
+        //    r.dogum_yeri = "edirne";
+        //    r.dogum_tarihi = Convert.ToDateTime("22.02.1995");
+        //    r.yas = 22;
+        //    r.kan_grubu = "0 rh(-)";
+        //    r.il_id = 3;
+        //    r.fakulte_id = 2;
+        //    r.bolum_id = 4;
+        //    r.dil_id = 2;
+        //    r.sekil_id = 1;
+        //    r.kullanici_id = 1;
+        //    r.e_posta = "201724@cumhuriyet.edu.tr";
+        //    kayıtDataSet.ogrenci.AddogrenciRow(r);
+        //    ogrenciTableAdapter.Update(r);
+        //    MessageBox.Show("Test");
+
+        //}
+      
     }
 }
